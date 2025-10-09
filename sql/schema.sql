@@ -20,7 +20,6 @@ CREATE TABLE cliente (
 -- Tabela de Vendas
 CREATE TABLE venda (
     id SERIAL PRIMARY KEY,
-	cliente_id INT,
     data_venda TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     cliente_id INTEGER REFERENCES cliente(id), -- Nullable, se a venda for anônima
     valor_total DECIMAL(10, 2) NOT NULL,
@@ -37,6 +36,6 @@ CREATE TABLE item_venda (
     quantidade INTEGER NOT NULL,
     preco_unitario DECIMAL(10, 2) NOT NULL,
     subtotal DECIMAL(10, 2) NOT NULL,
-	OREIGN KEY (venda_id) REFERENCES venda(id),
+	FOREIGN KEY (venda_id) REFERENCES venda(id),
     FOREIGN KEY (produto_id) REFERENCES produto(id)
 );
