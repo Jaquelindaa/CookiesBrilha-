@@ -11,6 +11,21 @@ public class Cliente {
     public Cliente() {
     }
 
+    public Cliente(int id, String nome, String cpf, String telefone, int pontosAcumulados) {
+        this.id = id;
+        this.nome = nome;
+        this.cpf = cpf;
+        this.telefone = telefone;
+        this.pontosAcumulados = pontosAcumulados;
+    }
+
+    public Cliente(String nome, String cpf, String telefone, int pontosAcumulados) {
+        this.nome = nome;
+        this.cpf = cpf;
+        this.telefone = telefone;
+        this.pontosAcumulados = pontosAcumulados;
+    }
+
     public int getId() {
         return id;
     }
