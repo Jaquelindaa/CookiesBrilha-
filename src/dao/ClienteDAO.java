@@ -27,6 +27,20 @@ public class ClienteDAO {
         }
     }
 
+    public Cliente findByCpf(String cpf) throws SQLException {
+        String sql = "SELECT * FROM cliente WHERE cpf = ?";
+        try (Connection conn = ConectionFactory.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, cpf);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToCliente(rs);
+                }
+                return null;
+            }
+        }
+    }
+
     public Cliente findById(int id) throws SQLException {
         String sql = "SELECT * FROM cliente WHERE id = ?";
         try (Connection conn = ConectionFactory.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -84,5 +98,15 @@ public class ClienteDAO {
             }
         }
         return clientes;
+    }
+
+    private Cliente mapResultSetToCliente(ResultSet rs) throws SQLException {
+        Cliente c = new Cliente();
+        c.setId(rs.getInt("id"));
+        c.setNome(rs.getString("nome"));
+        c.setCpf(rs.getString("cpf"));
+        c.setTelefone(rs.getString("telefone"));
+        c.setPontosAcumulados(rs.getInt("pontos_acumulados"));
+        return c;
     }
 }

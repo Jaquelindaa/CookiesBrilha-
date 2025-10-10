@@ -51,7 +51,14 @@ public class ClienteController {
             throw new IllegalArgumentException("Nome é obrigatório.");
         }
 
-        Cliente cliente = new Cliente(id, nome, null, telefone, pontosAcumulados);
+        Cliente cliente = buscarPorId(id);
+        if (cliente == null) {
+            throw new Exception("Cliente não encontrado");
+        }
+
+        cliente.setNome(nome);
+        cliente.setTelefone(telefone);
+
         try {
             dao.update(cliente);
         } catch (SQLException e) {
@@ -79,6 +86,19 @@ public class ClienteController {
         }
     }
 
+    public Cliente buscarPorCpf(String cpf) throws Exception {
+        if (cpf == null || cpf.trim().isEmpty()) {
+            throw new IllegalArgumentException("CPF é obrigatório para busca.");
+        }
+        cpf = cpf.replaceAll("\\D", "");
+
+        try {
+            return dao.findByCpf(cpf);
+        } catch (SQLException e) {
+            throw new Exception("Erro ao buscar cliente por CPF: " + e.getMessage(), e);
+        }
+    }
+
     public void adicionarPontos(int clienteId, int pontos) throws Exception {
         try {
             Cliente cliente = dao.findById(clienteId);
@@ -90,6 +110,23 @@ public class ClienteController {
             dao.update(cliente);
         } catch (SQLException e) {
             throw new Exception("Erro ao adicionar pontos: " + e.getMessage(), e);
+        }
+    }
+
+    public void subtrairPontos(int clienteId, int pontos) throws Exception {
+        try {
+            Cliente cliente = dao.findById(clienteId);
+            if (cliente == null) {
+                throw new Exception("Cliente não encontrado.");
+            }
+            if (cliente.getPontosAcumulados() < pontos) {
+                throw new Exception("Pontos insuficientes para subtrair.");
+            }
+            int novosPontos = cliente.getPontosAcumulados() - pontos;
+            cliente.setPontosAcumulados(novosPontos);
+            dao.update(cliente);
+        } catch (SQLException e) {
+            throw new Exception("Erro ao subtrair pontos: " + e.getMessage(), e);
         }
     }
 }
