@@ -6,11 +6,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import model.Cliente;
 import model.ItemVenda;
 import model.Venda;
 import util.ConectionFactory;
 
 public class VendaDAO {
+
+    private final ClienteDAO clienteDAO;
+
+    public VendaDAO() {
+        this.clienteDAO = new ClienteDAO();
+    }
 
     public void save(Venda venda) throws SQLException {
         String sqlVenda = "INSERT INTO venda (id_cliente, data_venda, valor_total, pontos_gerados, tipo_transacao) VALUES (?, ?, ?, ?, ?)";
@@ -22,10 +31,8 @@ public class VendaDAO {
 
         try {
             conn = ConectionFactory.getConnection();
-            // Desabilita o auto-commit para controlar a transação manualmente
             conn.setAutoCommit(false);
 
-            // 1. Inserir a Venda
             stmtVenda = conn.prepareStatement(sqlVenda, Statement.RETURN_GENERATED_KEYS);
             if (venda.getCliente() != null) {
                 stmtVenda.setInt(1, venda.getCliente().getId());
@@ -38,14 +45,12 @@ public class VendaDAO {
             stmtVenda.setString(5, venda.getTipoTransacao());
             stmtVenda.executeUpdate();
 
-            // 2. Obter o ID da Venda gerado
             try (ResultSet rs = stmtVenda.getGeneratedKeys()) {
                 if (rs.next()) {
                     venda.setId(rs.getInt(1));
                 }
             }
 
-            // 3. Inserir os Itens da Venda
             if (venda.getItens() != null && !venda.getItens().isEmpty()) {
                 stmtItem = conn.prepareStatement(sqlItemVenda);
                 for (ItemVenda item : venda.getItens()) {
@@ -54,33 +59,74 @@ public class VendaDAO {
                     stmtItem.setInt(3, item.getQuantidade());
                     stmtItem.setDouble(4, item.getPrecoUnitario());
                     stmtItem.setDouble(5, item.getSubtotal());
-                    stmtItem.addBatch(); // Adiciona a instrução em um lote
+                    stmtItem.addBatch();
                 }
-                stmtItem.executeBatch(); // Executa todas as instruções do lote
+                stmtItem.executeBatch();
             }
-            
-            // Se tudo correu bem, confirma a transação
+
             conn.commit();
 
         } catch (SQLException e) {
-            // Se ocorrer um erro, desfaz a transação
             if (conn != null) {
                 try {
                     conn.rollback();
                 } catch (SQLException ex) {
-                    // Logar o erro do rollback
                 }
             }
             throw new SQLException("Erro ao salvar a venda: " + e.getMessage(), e);
 
         } finally {
-            // Fecha os recursos e restaura o auto-commit
-            if (stmtVenda != null) stmtVenda.close();
-            if (stmtItem != null) stmtItem.close();
+            if (stmtVenda != null) {
+                stmtVenda.close();
+            }
+            if (stmtItem != null) {
+                stmtItem.close();
+            }
             if (conn != null) {
                 conn.setAutoCommit(true);
                 conn.close();
             }
         }
+    }
+
+    public List<Venda> findAll() throws SQLException {
+        List<Venda> vendas = new ArrayList<>();
+        String sql = "SELECT * FROM venda ORDER BY data_venda DESC";
+        try (Connection conn = ConectionFactory.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Venda v = mapResultSetToVenda(rs);
+                vendas.add(v);
+            }
+        }
+        return vendas;
+    }
+
+    private Venda mapResultSetToVenda(ResultSet rs) throws SQLException {
+        int clienteId = rs.getInt("cliente_id");
+        Cliente cliente = null;
+        
+        try {
+            if(clienteId > 0){
+                cliente = clienteDAO.findById(clienteId);
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar cliente para Venda ID " + rs.getInt("id") + ": " + e.getMessage());
+        }
+
+        List<ItemVenda> itensVenda = new ArrayList<>();
+
+        return new Venda(
+                rs.getTimestamp("data_venda").toLocalDateTime(),
+                cliente,
+                rs.getDouble("valor_total"),
+                rs.getInt("pontos_gerados"),
+                rs.getString("tipo_transacao"),
+                itensVenda
+        ) {
+            {
+                setId(rs.getInt("id"));
+            }
+        };
     }
 }
