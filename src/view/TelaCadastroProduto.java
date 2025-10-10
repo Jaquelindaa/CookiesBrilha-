@@ -21,8 +21,8 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
     public TelaCadastroProduto() {
         initComponents();
         this.produtoController = new ProdutoController();
-        carregarTabelaProdutos();
         configurarComboBoxTipo();
+        carregarTabelaProdutos();
         setLocationRelativeTo(null);
     }
 
@@ -185,8 +185,6 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
 
         jLabel1.setText("Tipo:");
 
-        cmbTipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        cmbTipo.setSelectedItem(Cookie, Bebida, Outro);
         cmbTipo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cmbTipoActionPerformed(evt);

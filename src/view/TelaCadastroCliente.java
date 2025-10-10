@@ -67,7 +67,7 @@ public class TelaCadastroCliente extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Cliente salvo com sucesso!");
             } else {
                 // ATUALIZAR CLIENTE EXISTENTE (Pontos são mantidos no Controller)
-                clienteController.atualizarCliente(clienteSelecionadoId, nome, cpf, telefone);
+                clienteController.atualizarCliente(clienteSelecionadoId, nome, telefone);
                 JOptionPane.showMessageDialog(this, "Cliente atualizado com sucesso!");
             }
             limparCampos();
