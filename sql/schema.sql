@@ -1,5 +1,5 @@
 -- Tabela de Produtos
-CREATE TABLE produto (
+CREATE TABLE IF NOT EXISTS produto (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     preco DECIMAL(10, 2) NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE produto (
 );
 
 -- Tabela de Clientes
-CREATE TABLE cliente (
+CREATE TABLE IF NOT EXISTS cliente (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     cpf VARCHAR(11) UNIQUE NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE cliente (
 );
 
 -- Tabela de Vendas
-CREATE TABLE venda (
+CREATE TABLE IF NOT EXISTS venda (
     id SERIAL PRIMARY KEY,
     data_venda TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     cliente_id INTEGER REFERENCES cliente(id), -- Nullable, se a venda for anônima
@@ -29,7 +29,7 @@ CREATE TABLE venda (
 );
 
 -- Tabela de Itens da Venda (Para múltiplos produtos na venda)
-CREATE TABLE item_venda (
+CREATE TABLE IF NOT EXISTS item_venda (
     id SERIAL PRIMARY KEY,
     venda_id INTEGER REFERENCES venda(id) ON DELETE CASCADE,
     produto_id INTEGER REFERENCES produto(id),
