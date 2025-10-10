@@ -9,8 +9,10 @@ import model.ItemVenda;
 
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -20,6 +22,8 @@ public class TelaVenda extends javax.swing.JFrame {
     /**
      * Creates new form TelaVenda
      */
+    private DecimalFormat df;
+
     private final VendaController vendaController;
     private final ClienteController clienteController;
     private final ProdutoController produtoController;
@@ -38,6 +42,14 @@ public class TelaVenda extends javax.swing.JFrame {
         carregarProdutosDisponiveis();
         atualizarTotalCarrinho();
         setLocationRelativeTo(null);
+    }
+
+    public void FormattingExample() {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("pt", "BR"));
+        symbols.setDecimalSeparator(',');
+        symbols.setGroupingSeparator('.');
+
+        this.df = new DecimalFormat("R$ #,##0.00", symbols);
     }
 
     private void carregarProdutosDisponiveis() {

@@ -1,5 +1,6 @@
 package view;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import view.TelaCadastroProduto;
 import view.TelaCadastroCliente;
@@ -8,7 +9,7 @@ import view.TelaCadastroCliente;
  *
  * @author 10394791975
  */
-public class TelaPrincipal extends javax.swing.JPanel {
+public class TelaPrincipal extends javax.swing.JFrame {
 
     /**
      * Creates new form TelaPrincipal
