@@ -36,7 +36,6 @@ public class ProdutoController {
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("Nome do produto é obrigatório.");
         }
-        // Validações adicionais aqui...
 
         Produto produto = new Produto(id, nome, preco, tipo, estoque, custoEmPontos);
         try {

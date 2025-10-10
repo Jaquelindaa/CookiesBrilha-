@@ -46,7 +46,7 @@ public class ClienteController {
         }
     }
 
-    public void atualizarCliente(int id, String nome, String telefone, int pontosAcumulados) throws Exception {
+    public void atualizarCliente(int id, String nome, String telefone) throws Exception {
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("Nome é obrigatório.");
         }
