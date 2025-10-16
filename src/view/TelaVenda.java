@@ -22,18 +22,17 @@ public class TelaVenda extends javax.swing.JFrame {
     /**
      * Creates new form TelaVenda
      */
-    private DecimalFormat df;
-
     private final VendaController vendaController;
     private final ClienteController clienteController;
     private final ProdutoController produtoController;
-
-    private Cliente clienteAtual;
-    private List<Produto> listaProdutosDisponiveis;
+    private Cliente clienteSelecionado;
+    private List<Produto> produtosDisponiveis;
     private final List<ItemVenda> carrinho;
-
+    private final DecimalFormat df;
+    
     public TelaVenda() {
         initComponents();
+        this.df = new DecimalFormat("R$ #,##0.00", new DecimalFormatSymbols(new Locale("pt", "BR")));
         this.vendaController = new VendaController();
         this.clienteController = new ClienteController();
         this.produtoController = new ProdutoController();
@@ -44,22 +43,14 @@ public class TelaVenda extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }
 
-    public void FormattingExample() {
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("pt", "BR"));
-        symbols.setDecimalSeparator(',');
-        symbols.setGroupingSeparator('.');
-
-        this.df = new DecimalFormat("R$ #,##0.00", symbols);
-    }
-
     private void carregarProdutosDisponiveis() {
         try {
-            listaProdutosDisponiveis = produtoController.buscarTodos();
+            produtosDisponiveis = produtoController.buscarTodos();
 
             DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
             model.addElement("--- Selecione um Produto ---");
 
-            for (Produto p : listaProdutosDisponiveis) {
+            for (Produto p : produtosDisponiveis) {
                 // Exibe nome e preço
                 model.addElement(p.getNome() + " (R$ " + df.format(p.getPreco()) + ")");
             }
@@ -77,7 +68,7 @@ public class TelaVenda extends javax.swing.JFrame {
         // Remove a parte do preço no final para buscar pelo nome
         String nome = nomeDisplay.substring(0, nomeDisplay.lastIndexOf(" (R$"));
 
-        for (Produto p : listaProdutosDisponiveis) {
+        for (Produto p : produtosDisponiveis) {
             if (p.getNome().equals(nome)) {
                 return p;
             }
@@ -106,9 +97,10 @@ public class TelaVenda extends javax.swing.JFrame {
     }
 
     private void atualizarTotalCarrinho() {
-        double total = carrinho.stream()
-                .mapToDouble(ItemVenda::getSubtotal)
-                .sum();
+        double total = 0.0;
+        for(ItemVenda item : carrinho){
+            total += item.getSubtotal();
+        }
 
         lblTotal.setText("VALOR TOTAL: R$ " + df.format(total));
     }
@@ -193,6 +185,11 @@ public class TelaVenda extends javax.swing.JFrame {
         btnResgatarPontos.setText("RESGATAR ITEM COM PONTOS");
 
         btnFinalizarVenda.setText("FINALIZAR VENDA");
+        btnFinalizarVenda.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFinalizarVendaActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -282,12 +279,12 @@ public class TelaVenda extends javax.swing.JFrame {
             Cliente cliente = clienteController.buscarPorCpf(cpf);
 
             if (cliente != null) {
-                this.clienteAtual = cliente;
+                this.clienteSelecionado = cliente;
                 lblClienteNome.setText("Cliente: " + cliente.getNome());
                 lblClientePontos.setText("Pontos Atuais: " + cliente.getPontosAcumulados());
                 JOptionPane.showMessageDialog(this, "Cliente encontrado e selecionado!");
             } else {
-                this.clienteAtual = null;
+                this.clienteSelecionado = null;
                 lblClienteNome.setText("Cliente: Não Encontrado");
                 lblClientePontos.setText("Pontos Atuais: 0");
                 JOptionPane.showMessageDialog(this, "Cliente não encontrado.", "Erro de Busca", JOptionPane.WARNING_MESSAGE);
@@ -331,6 +328,41 @@ public class TelaVenda extends javax.swing.JFrame {
         cmbProduto.setSelectedIndex(0);
         spnQuantidade.setValue(1);
     }//GEN-LAST:event_btnAdicionarItemActionPerformed
+
+    private void btnFinalizarVendaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinalizarVendaActionPerformed
+        if (carrinho.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "O carrinho está vazio. Adicione itens para finalizar a venda.", "Atenção", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (clienteSelecionado == null) {
+            int resposta = JOptionPane.showConfirmDialog(this, 
+                "Nenhum cliente foi selecionado. Deseja continuar a venda sem acumular pontos?", 
+                "Confirmar Venda", JOptionPane.YES_NO_OPTION);
+            if (resposta == JOptionPane.NO_OPTION) {
+                return;
+            }
+        }
+
+        try {
+            vendaController.registrarVenda(clienteSelecionado, carrinho);
+
+            carrinho.clear();
+            atualizarTabelaCarrinho();
+            atualizarTotalCarrinho();
+            carregarProdutosDisponiveis(); 
+
+            clienteSelecionado = null;
+            lblClienteNome.setText("Cliente: Nenhum Cliente Selecionado");
+            lblClientePontos.setText("Pontos atuais: 0");
+            txtCpf.setText("");
+
+            JOptionPane.showMessageDialog(this, "Venda registrada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao finalizar venda: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnFinalizarVendaActionPerformed
 
     /**
      * @param args the command line arguments
