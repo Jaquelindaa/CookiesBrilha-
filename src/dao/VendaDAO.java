@@ -22,8 +22,8 @@ public class VendaDAO {
     }
 
     public void save(Venda venda) throws SQLException {
-        String sqlVenda = "INSERT INTO venda (id_cliente, data_venda, valor_total, pontos_gerados, tipo_transacao) VALUES (?, ?, ?, ?, ?)";
-        String sqlItemVenda = "INSERT INTO item_venda (id_venda, id_produto, quantidade, preco_unitario, subtotal) VALUES (?, ?, ?, ?, ?)";
+        String sqlVenda = "INSERT INTO venda (cliente_id, data_venda, valor_total, pontos_gerados, tipo_transacao) VALUES (?, ?, ?, ?, ?)";
+        String sqlItemVenda = "INSERT INTO item_venda (venda_id, produto_id, quantidade, preco_unitario, subtotal) VALUES (?, ?, ?, ?, ?)";
 
         Connection conn = null;
         PreparedStatement stmtVenda = null;

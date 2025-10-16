@@ -9,7 +9,7 @@ import java.util.List;
 public class ProdutoDAO {
 
     public void save(Produto produto) throws SQLException {
-        String sql = "INSERT INTO produto (nome, preco, tipo, estoque, custo_em_pontos) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO produto (nome, preco, tipo, estoque, custo_pontos) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = ConectionFactory.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, produto.getNome());
             stmt.setDouble(2, produto.getPreco());
@@ -27,7 +27,7 @@ public class ProdutoDAO {
     }
 
     public void update(Produto produto) throws SQLException {
-        String sql = "UPDATE produto SET nome = ?, preco = ?, tipo = ?, estoque = ?, custo_em_pontos = ? WHERE id = ?";
+        String sql = "UPDATE produto SET nome = ?, preco = ?, tipo = ?, estoque = ?, custo_pontos = ? WHERE id = ?";
         try (Connection conn = ConectionFactory.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, produto.getNome());
@@ -89,7 +89,7 @@ public class ProdutoDAO {
         p.setPreco(rs.getDouble("preco"));
         p.setTipo(rs.getString("tipo"));
         p.setEstoque(rs.getInt("estoque"));
-        p.setCustoEmPontos(rs.getInt("custo_em_pontos"));
+        p.setCustoEmPontos(rs.getInt("custo_pontos"));
         return p;
     }
 }
