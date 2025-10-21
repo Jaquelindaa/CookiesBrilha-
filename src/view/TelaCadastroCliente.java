@@ -212,7 +212,7 @@ public class TelaCadastroCliente extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         jLabel2.setText("Cadastro do cliente");
 
-        btnEditar.setBackground(new java.awt.Color(255, 132, 154));
+        btnEditar.setBackground(new java.awt.Color(255, 102, 0));
         btnEditar.setFont(new java.awt.Font("Yu Gothic UI Semibold", 0, 16)); // NOI18N
         btnEditar.setForeground(new java.awt.Color(255, 255, 255));
         btnEditar.setText("Editar");

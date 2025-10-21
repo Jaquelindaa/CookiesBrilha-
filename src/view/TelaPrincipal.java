@@ -37,7 +37,6 @@ public class TelaPrincipal extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(50, 50, 50, 50));
-        jPanel1.setLayout(new java.awt.GridLayout(2, 2, 15, 15));
 
         btnNovaVenda.setBackground(new java.awt.Color(252, 223, 228));
         btnNovaVenda.setFont(new java.awt.Font("Yu Gothic UI Semibold", 0, 12)); // NOI18N
@@ -50,7 +49,6 @@ public class TelaPrincipal extends javax.swing.JFrame {
                 btnNovaVendaActionPerformed(evt);
             }
         });
-        jPanel1.add(btnNovaVenda);
 
         btnCadProdutos.setBackground(new java.awt.Color(252, 223, 228));
         btnCadProdutos.setFont(new java.awt.Font("Yu Gothic UI Semibold", 0, 12)); // NOI18N
@@ -63,7 +61,6 @@ public class TelaPrincipal extends javax.swing.JFrame {
                 btnCadProdutosActionPerformed(evt);
             }
         });
-        jPanel1.add(btnCadProdutos);
 
         bnCadClientes.setBackground(new java.awt.Color(252, 223, 228));
         bnCadClientes.setFont(new java.awt.Font("Yu Gothic UI Semibold", 0, 12)); // NOI18N
@@ -77,7 +74,6 @@ public class TelaPrincipal extends javax.swing.JFrame {
                 bnCadClientesActionPerformed(evt);
             }
         });
-        jPanel1.add(bnCadClientes);
 
         btnRelatorios.setBackground(new java.awt.Color(252, 223, 228));
         btnRelatorios.setFont(new java.awt.Font("Yu Gothic UI Semibold", 0, 12)); // NOI18N
@@ -90,7 +86,33 @@ public class TelaPrincipal extends javax.swing.JFrame {
                 btnRelatoriosActionPerformed(evt);
             }
         });
-        jPanel1.add(btnRelatorios);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addComponent(btnNovaVenda, javax.swing.GroupLayout.PREFERRED_SIZE, 261, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
+                .addComponent(btnCadProdutos, javax.swing.GroupLayout.PREFERRED_SIZE, 261, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(37, 37, 37)
+                .addComponent(bnCadClientes, javax.swing.GroupLayout.PREFERRED_SIZE, 261, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(38, 38, 38)
+                .addComponent(btnRelatorios, javax.swing.GroupLayout.PREFERRED_SIZE, 261, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(24, 24, 24))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(165, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnRelatorios, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnCadProdutos, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnNovaVenda, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bnCadClientes, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(108, 108, 108))
+        );
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
