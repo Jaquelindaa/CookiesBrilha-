@@ -22,77 +22,77 @@ public class TelaPrincipal extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        lblTitulo = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
         btnNovaVenda = new javax.swing.JButton();
         btnCadProdutos = new javax.swing.JButton();
         bnCadClientes = new javax.swing.JButton();
         btnRelatorios = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Sistema de vendas - CookiesBrilha");
 
-        lblTitulo.setText("COOKIES BRILHA - SISTEMA DE VENDAS");
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/banner.png"))); // NOI18N
+        getContentPane().add(jLabel1, java.awt.BorderLayout.PAGE_START);
 
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(50, 50, 50, 50));
+        jPanel1.setLayout(new java.awt.GridLayout(2, 2, 15, 15));
+
+        btnNovaVenda.setBackground(new java.awt.Color(252, 223, 228));
+        btnNovaVenda.setFont(new java.awt.Font("Yu Gothic UI Semibold", 0, 12)); // NOI18N
+        btnNovaVenda.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/Vendas.png"))); // NOI18N
         btnNovaVenda.setText("REGISTRAR NOVA VENDA");
+        btnNovaVenda.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnNovaVenda.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         btnNovaVenda.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnNovaVendaActionPerformed(evt);
             }
         });
+        jPanel1.add(btnNovaVenda);
 
+        btnCadProdutos.setBackground(new java.awt.Color(252, 223, 228));
+        btnCadProdutos.setFont(new java.awt.Font("Yu Gothic UI Semibold", 0, 12)); // NOI18N
+        btnCadProdutos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/cadastrarProduto.png"))); // NOI18N
         btnCadProdutos.setText("CADASTRAR PRODUTO");
+        btnCadProdutos.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnCadProdutos.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         btnCadProdutos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCadProdutosActionPerformed(evt);
             }
         });
+        jPanel1.add(btnCadProdutos);
 
+        bnCadClientes.setBackground(new java.awt.Color(252, 223, 228));
+        bnCadClientes.setFont(new java.awt.Font("Yu Gothic UI Semibold", 0, 12)); // NOI18N
+        bnCadClientes.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/addCliente.png"))); // NOI18N
         bnCadClientes.setText("CADASTRAR CLIENTES");
         bnCadClientes.setToolTipText("");
+        bnCadClientes.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        bnCadClientes.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         bnCadClientes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bnCadClientesActionPerformed(evt);
             }
         });
+        jPanel1.add(bnCadClientes);
 
+        btnRelatorios.setBackground(new java.awt.Color(252, 223, 228));
+        btnRelatorios.setFont(new java.awt.Font("Yu Gothic UI Semibold", 0, 12)); // NOI18N
+        btnRelatorios.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/relatorios.png"))); // NOI18N
         btnRelatorios.setText("GERAR RELATÓRIO DE VENDAS");
+        btnRelatorios.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnRelatorios.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         btnRelatorios.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnRelatoriosActionPerformed(evt);
             }
         });
+        jPanel1.add(btnRelatorios);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblTitulo, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(btnRelatorios, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(bnCadClientes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnCadProdutos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnNovaVenda, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblTitulo)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnNovaVenda)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnCadProdutos)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(bnCadClientes)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnRelatorios)
-                .addContainerGap(156, Short.MAX_VALUE))
-        );
+        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -153,6 +153,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnCadProdutos;
     private javax.swing.JButton btnNovaVenda;
     private javax.swing.JButton btnRelatorios;
-    private javax.swing.JLabel lblTitulo;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
 }
