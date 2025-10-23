@@ -1,5 +1,10 @@
+-- DROP TABLE produto CASCADE;
+-- DROP TABLE cliente CASCADE;
+DROP TABLE venda CASCADE;
+-- DROP TABLE item_venda CASCADE;
+
 -- Tabela de Produtos
-CREATE TABLE IF NOT EXISTS produto (
+CREATE TABLE produto (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     preco DECIMAL(10, 2) NOT NULL,
@@ -9,7 +14,7 @@ CREATE TABLE IF NOT EXISTS produto (
 );
 
 -- Tabela de Clientes
-CREATE TABLE IF NOT EXISTS cliente (
+CREATE TABLE cliente (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     cpf VARCHAR(11) UNIQUE NOT NULL,
@@ -18,7 +23,7 @@ CREATE TABLE IF NOT EXISTS cliente (
 );
 
 -- Tabela de Vendas
-CREATE TABLE IF NOT EXISTS venda (
+CREATE TABLE venda (
     id SERIAL PRIMARY KEY,
     data_venda TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     cliente_id INTEGER REFERENCES cliente(id), -- Nullable, se a venda for anônima
@@ -29,7 +34,7 @@ CREATE TABLE IF NOT EXISTS venda (
 );
 
 -- Tabela de Itens da Venda (Para múltiplos produtos na venda)
-CREATE TABLE IF NOT EXISTS item_venda (
+CREATE TABLE item_venda (
     id SERIAL PRIMARY KEY,
     venda_id INTEGER REFERENCES venda(id) ON DELETE CASCADE,
     produto_id INTEGER REFERENCES produto(id),

@@ -29,7 +29,7 @@ public class TelaVenda extends javax.swing.JFrame {
     private List<Produto> produtosDisponiveis;
     private final List<ItemVenda> carrinho;
     private final DecimalFormat df;
-    
+
     public TelaVenda() {
         initComponents();
         this.df = new DecimalFormat("R$ #,##0.00", new DecimalFormatSymbols(new Locale("pt", "BR")));
@@ -98,11 +98,48 @@ public class TelaVenda extends javax.swing.JFrame {
 
     private void atualizarTotalCarrinho() {
         double total = 0.0;
-        for(ItemVenda item : carrinho){
+        for (ItemVenda item : carrinho) {
             total += item.getSubtotal();
         }
 
         lblTotal.setText("VALOR TOTAL: R$ " + df.format(total));
+    }
+
+    private void resgatarComPontos() {
+        if (clienteSelecionado == null) {
+            JOptionPane.showMessageDialog(this, "Selecione um cliente primeiro.", "Atenção", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Produto produto = getProdutoSelecionado((String) cmbProduto.getSelectedItem());
+
+        if (produto == null) {
+            JOptionPane.showMessageDialog(this, "Selecione um produto para resgatar.", "Atenção", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (produto.getCustoEmPontos() <= 0) {
+            JOptionPane.showMessageDialog(this, "Este produto não pode ser resgatado com pontos.", "Atenção", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Deseja resgatar '" + produto.getNome() + "' por " + produto.getCustoEmPontos() + " pontos?",
+                    "Confirmar Resgate", JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                vendaController.resgatarProduto(clienteSelecionado, produto);
+                JOptionPane.showMessageDialog(this, "Produto resgatado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+
+                clienteSelecionado = clienteController.buscarPorId(clienteSelecionado.getId());
+                lblClientePontos.setText("Pontos Atuais: " + clienteSelecionado.getPontosAcumulados());
+
+                carregarProdutosDisponiveis();
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao resgatar produto: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
@@ -215,6 +252,14 @@ public class TelaVenda extends javax.swing.JFrame {
         btnFinalizarVenda.setFont(new java.awt.Font("Yu Gothic UI Semibold", 0, 16)); // NOI18N
         btnFinalizarVenda.setForeground(new java.awt.Color(255, 255, 255));
         btnFinalizarVenda.setText("Finalizar vendas");
+        btnResgatarPontos.setText("RESGATAR ITEM COM PONTOS");
+        btnResgatarPontos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnResgatarPontosActionPerformed(evt);
+            }
+        });
+
+        btnFinalizarVenda.setText("FINALIZAR VENDA");
         btnFinalizarVenda.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnFinalizarVendaActionPerformed(evt);
@@ -389,9 +434,9 @@ public class TelaVenda extends javax.swing.JFrame {
         }
 
         if (clienteSelecionado == null) {
-            int resposta = JOptionPane.showConfirmDialog(this, 
-                "Nenhum cliente foi selecionado. Deseja continuar a venda sem acumular pontos?", 
-                "Confirmar Venda", JOptionPane.YES_NO_OPTION);
+            int resposta = JOptionPane.showConfirmDialog(this,
+                    "Nenhum cliente foi selecionado. Deseja continuar a venda sem acumular pontos?",
+                    "Confirmar Venda", JOptionPane.YES_NO_OPTION);
             if (resposta == JOptionPane.NO_OPTION) {
                 return;
             }
@@ -403,7 +448,7 @@ public class TelaVenda extends javax.swing.JFrame {
             carrinho.clear();
             atualizarTabelaCarrinho();
             atualizarTotalCarrinho();
-            carregarProdutosDisponiveis(); 
+            carregarProdutosDisponiveis();
 
             clienteSelecionado = null;
             lblClienteNome.setText("Cliente: Nenhum Cliente Selecionado");
@@ -420,6 +465,9 @@ public class TelaVenda extends javax.swing.JFrame {
     private void txtCpfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCpfActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtCpfActionPerformed
+    private void btnResgatarPontosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResgatarPontosActionPerformed
+        resgatarComPontos();
+    }//GEN-LAST:event_btnResgatarPontosActionPerformed
 
     /**
      * @param args the command line arguments
