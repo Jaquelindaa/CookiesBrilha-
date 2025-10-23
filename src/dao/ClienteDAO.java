@@ -5,7 +5,6 @@ import util.ConectionFactory;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-testes
 public class ClienteDAO {
 
     public void save(Cliente cliente) throws SQLException {
