@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.0.0">
+  <help_text>// Salve este conteúdo como "classes.uxf" e abra no Umlet
+//
+// Diagrama de Classes (Corrigido)
+// Inclui:
+// 1. Classes (Atributos e Métodos)
+// 2. Pacotes (Camadas MVC)
+// 3. Relacionamentos (Associação, Agregação, Composição, Dependência)
+// 4. Cardinalidade (m1, m2)
+//
+// Legenda de Relacionamentos (lt=...):
+// lt=-o&gt;     (Agregação - "tem um")
+// lt=&lt;&gt;-&gt;  (Composição - "é parte de", "possui")
+// lt=..&gt;     (Dependência - "usa um")
+// lt=-       (Associação simples)
+//
+// Este código XML contém *tanto* as classes quanto os relacionamentos (linhas).</help_text>
+  <zoom_level>5</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>905</x>
+      <y>300</y>
+      <w>260</w>
+      <h>155</h>
+    </coordinates>
+    <panel_attributes>model::Cliente
+--
+-id: int
+-nome: String
+-cpf: String
+-telefone: String
+-pontosAcumulados: int
+--
++Cliente(id: int, nome: String, cpf: String, telefone: String, pontosAcumulados: int)
++getId(): int
++setId(int): void
++getNome(): String
++setNome(nome&gt;: String): void
++getCpf(): String
++setCpf(cpf: String): void
++getTelefone(): String
++setTelefone(telefone: String): void
++getPontosAcumulados(): int
++setPontosAcumulados(pontosAcumulados: int): void
+bg=pink</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>810</x>
+      <y>565</y>
+      <w>295</w>
+      <h>175</h>
+    </coordinates>
+    <panel_attributes>model::Produto
+--
+-id: int
+-nome: String
+-preco: double
+-tipo: String
+-estoque: int
+-custoEmPontos: int
+--
++Produto(id: int, nome: String, preco: double, tipo: String, estoque: int, custoEmPontos: int)
++getid(): int
++setld(id: int):void
++getNome(): String
++setNome(nome: String):void
++getPreco(): double
++setPreco(preco: double):void
++getTipo(): String
++setTipo(tipo: String): void
++getEstoque(): int
++setEstoque(estoque: int):void
++getCustoEmPontos():int
++setCustoEmPontos (custoEmPontos):void
+bg=pink</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>385</x>
+      <y>290</y>
+      <w>395</w>
+      <h>185</h>
+    </coordinates>
+    <panel_attributes>model::Venda
+--
+-id: int
+-dataVenda: LocalDateTime
+-cliente: Cliente
+-valorTotal: double
+-pontosGerados: int
+-tipoTransacao: String
+-itens: List&lt;ItemVenda&gt;
+--
++Venda(id: int, dataVenda: LocalDateTime, valor Total: double, pontos Gerados: int, tipo Transacao: String, List&lt;ItemVenda&gt;)
++getId():int
++setId(id: String):void
++getDataVenda(): LocalDate Time
++setDataVenda (dataVenda: LocalDateTime): void
++getValor Total(): double
++setValor Total(valor Total: double): void
++getPontosGerados(): int
++setPontosGerados (pontos Gerados: int): void
++getTipo Transacao(): String
++setTransacao(transacao: String): void
++getitens(): List&lt;ItemVenda&gt;
++setltens(): List&lt;ItemVenda&gt;
++CalcularValor Total Pontos():void
+bg=pink</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>450</x>
+      <y>580</y>
+      <w>255</w>
+      <h>135</h>
+    </coordinates>
+    <panel_attributes>model::ItemVenda
+--
+-id: int
+-produto: Produto
+-quantidade: int
+-precoUnitario: double
+-subtotal: double
+--
++ItemVenda(id: int, quantidade: int, precoUnitario: double, subtotal: double)
++getId(): int
++setld(id: int): void
++getQuantidade(): int
++setQuantidade (quantidade: int): void
++getPrecoUnitario(): double
++setPrecoUnitario(preco Unitario: double):void
++getSubtotal(): double
++setSubtotal(subtotal: double):void
+bg=pink
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>775</x>
+      <y>325</y>
+      <w>140</w>
+      <h>25</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=*
+m2=1
+&lt; uma venda é feita para</panel_attributes>
+    <additional_attributes>10.0;20.0;260.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>570</x>
+      <y>470</y>
+      <w>40</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m1=1
+m2=1..*
+possui &gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;220.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>700</x>
+      <y>595</y>
+      <w>120</w>
+      <h>25</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=*
+m2=1
+&lt; pode estar em</panel_attributes>
+    <additional_attributes>10.0;20.0;220.0;20.0</additional_attributes>
+  </element>
+</diagram>
