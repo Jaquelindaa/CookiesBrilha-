@@ -66,8 +66,8 @@ Nessa mesma página, clique em `<>Code` e depois em `Download ZIP`
 
 ## DIAGRAMA DE CLASSES
 O diagrama também está disponível em `\CookiesBrilha\Diagramas`
-![Diagrama de Classes]("/Diagramas/DiagramaClasse.png")
+![Diagrama de Classes](Diagramas/DiagramaClasse.png)
 
 ## DIAGRAMA DE CASOS DE USO
 O diagrama também está disponível em `\CookiesBrilha\Diagramas`
-![Diagrama de Classes]("/Diagramas/DiagramaCasosDeUso.png")
+![Diagrama de Classes](Diagramas/DiagramaCasosDeUso.png)
