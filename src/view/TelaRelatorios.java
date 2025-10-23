@@ -4,16 +4,19 @@ import controller.VendaController;
 import model.Venda;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols; // Importado para Locale
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale; // Importado para Locale
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 public class TelaRelatorios extends javax.swing.JFrame {
 
     private final VendaController vendaController;
-    private final DecimalFormat df = new DecimalFormat("0.00");
-    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    // --- FORMATADORES COMO MEMBROS DA CLASSE ---
+    private final DecimalFormat df; // Formatador de moeda
+    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"); // Formatador de data/hora
 
     /**
      * Creates new form TelaRelatorios
@@ -21,46 +24,81 @@ public class TelaRelatorios extends javax.swing.JFrame {
     public TelaRelatorios() {
         initComponents();
         this.vendaController = new VendaController();
+        // --- INICIALIZA O FORMATADOR DE MOEDA NO CONSTRUTOR ---
+        this.df = new DecimalFormat("R$ #,##0.00", new DecimalFormatSymbols(new Locale("pt", "BR")));
+
+        // --- CHAMA A CONFIGURAÇÃO DA TABELA ---
+        configurarTabelaRelatorio();
         setLocationRelativeTo(null);
     }
 
+    // --- NOVO MÉTODO: Para configurar as colunas da tabela ---
+    private void configurarTabelaRelatorio() {
+        DefaultTableModel model = (DefaultTableModel) tblRelatorio.getModel();
+        // Define os nomes das colunas
+        model.setColumnIdentifiers(new Object[]{"ID", "Data/Hora", "Cliente (CPF)", "Tipo", "Valor/Pontos", "Pontos Gerados"});
+        // Ajusta larguras se necessário (exemplo)
+        if (tblRelatorio.getColumnModel().getColumnCount() > 0) {
+            tblRelatorio.getColumnModel().getColumn(0).setPreferredWidth(40);  // ID
+            tblRelatorio.getColumnModel().getColumn(1).setPreferredWidth(120); // Data/Hora
+            tblRelatorio.getColumnModel().getColumn(2).setPreferredWidth(100); // CPF
+            tblRelatorio.getColumnModel().getColumn(3).setPreferredWidth(60);  // Tipo
+            tblRelatorio.getColumnModel().getColumn(4).setPreferredWidth(100); // Valor/Pontos
+            tblRelatorio.getColumnModel().getColumn(5).setPreferredWidth(100); // Pontos Gerados
+        }
+    }
+
+    // --- MÉTODO CORRIGIDO ---
     private void carregarRelatorio() {
         DefaultTableModel model = (DefaultTableModel) tblRelatorio.getModel();
-        model.setRowCount(0); // Limpa a tabela
+        model.setRowCount(0);
 
-        // Define as colunas se necessário
-        if (model.getColumnCount() == 0) {
-            model.setColumnIdentifiers(new Object[]{"ID", "Data/Hora", "Cliente (CPF)", "Tipo", "Valor Total", "Pontos"});
-        }
+        double totalVendasMonetario = 0.0;
 
         try {
-            // Supondo que VendaController tem um método para buscar todas as vendas
             List<Venda> transacoes = vendaController.buscarTodasTransacoes();
 
-            double totalVendas = 0.0;
-
-            for (Venda venda : transacoes) {
-                model.addRow(new Object[]{
-                    venda.getId(),
-                    venda.getDataVenda().format(dtf),
-                    venda.getCliente() != null ? venda.getCliente().getCpf() : "N/A", // Evita NullPointerException
-                    venda.getTipoTransacao(),
-                    venda.getTipoTransacao().equals("RESGATE") ? "R$ 0.00" : "R$ " + df.format(venda.getValorTotal()),
-                    venda.getTipoTransacao().equals("RESGATE") ? "(-" + venda.getPontosGerados() + ")" : "+" + venda.getPontosGerados()
-                });
-
-                if (venda.getTipoTransacao().equals("VENDA")) {
-                    totalVendas += venda.getValorTotal();
-                }
+            if (transacoes.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Nenhuma transação encontrada no período.", "Relatório Vazio", JOptionPane.INFORMATION_MESSAGE);
+                lblTotalVendas.setText("Total em Vendas: R$ 0,00");
+                return;
             }
 
-            // Atualiza o total de vendas
-            lblTotalVendas.setText("Total em Vendas (Monetário): R$ " + df.format(totalVendas));
+            for (Venda venda : transacoes) {
+                String clienteCpf = (venda.getCliente() != null && venda.getCliente().getCpf() != null)
+                        ? venda.getCliente().getCpf() : "N/A";
+
+                String valorOuPontos;
+                String pontosGeradosStr;
+
+                if ("RESGATE".equals(venda.getTipoTransacao())) {
+                    valorOuPontos = "(" + venda.getPontosGerados() + " pts)";
+                    pontosGeradosStr = "0";
+                } else {
+                    valorOuPontos = df.format(venda.getValorTotal());
+                    pontosGeradosStr = "+" + venda.getPontosGerados(); 
+                    totalVendasMonetario += venda.getValorTotal();
+                }
+
+                model.addRow(new Object[]{
+                    venda.getId(),
+                    venda.getDataVenda() != null ? venda.getDataVenda().format(dtf) : "Data Inválida", // Verifica se data não é nula
+                    clienteCpf,
+                    venda.getTipoTransacao(),
+                    valorOuPontos,
+                    pontosGeradosStr
+                });
+            }
+
+            lblTotalVendas.setText("Total em Vendas: " + df.format(totalVendasMonetario));
 
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Erro ao carregar o relatório: " + e.getMessage(), "Erro de Banco de Dados", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Erro ao carregar o relatório do banco de dados: " + e.getMessage(), "Erro de Banco", JOptionPane.ERROR_MESSAGE);
+            lblTotalVendas.setText("Total em Vendas: Erro");
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro inesperado: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Erro inesperado ao processar os dados: " + e.getMessage(), "Erro Inesperado", JOptionPane.ERROR_MESSAGE);
+            lblTotalVendas.setText("Total em Vendas: Erro");
         }
     }
 
@@ -189,7 +227,7 @@ public class TelaRelatorios extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCarregarrelatorioActionPerformed
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
-       this.dispose();
+        this.dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
 
     /**

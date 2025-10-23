@@ -5,6 +5,9 @@ import util.ConectionFactory;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class ClienteDAO {
 
     public void save(Cliente cliente) throws SQLException {
@@ -72,12 +75,27 @@ public class ClienteDAO {
         }
     }
 
-    public void delete(int id) throws SQLException {
-        String sql = "DELETE FROM cliente WHERE id = ?";
-        try (Connection conn = ConectionFactory.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+    public void delete(int id) throws SQLException, Exception {
+        String sqlDeleteCliente = "DELETE FROM cliente WHERE id = ?";
+        try (Connection conn = ConectionFactory.getConnection(); PreparedStatement stmtCliente = conn.prepareStatement(sqlDeleteCliente)) {
 
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
+            stmtCliente.setInt(1, id);
+            int rowsAffected = stmtCliente.executeUpdate();
+
+            if (rowsAffected == 0) {
+                throw new Exception("Exclusão falhou, nenhum cliente encontrado com o ID: " + id);
+            }
+
+        } catch (SQLException e) {
+
+            // O código '23503' é padrão para "foreign_key_violation" no PostgreSQL
+            if ("23503".equals(e.getSQLState()) || e.getMessage().contains("venda_cliente_id_fkey")) {
+                throw new Exception("Este cliente não pode ser excluído pois possui vendas em seu histórico.");
+            }
+            
+            throw new Exception("Ocorreu um erro no banco de dados ao tentar excluir o cliente.");
+        } catch (Exception ex) {
+            Logger.getLogger(ClienteDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

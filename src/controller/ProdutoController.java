@@ -56,4 +56,13 @@ public class ProdutoController {
     public List<Produto> buscarTodos() throws SQLException {
         return dao.findAll();
     }
+
+    public Produto findById(int id) throws SQLException {
+        try {
+            return dao.findById(id);
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar produto por ID (" + id + "): " + e.getMessage());
+            throw new SQLException("Erro ao buscar produto por ID.", e);
+        }
+    }
 }

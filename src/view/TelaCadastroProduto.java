@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
@@ -15,15 +17,23 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
     private final ProdutoController produtoController;
     private int produtoSelecionadoId = -1;
 
-    /**
-     * Creates new form TelaCadastroProduto
-     */
     public TelaCadastroProduto() {
         initComponents();
         this.produtoController = new ProdutoController();
         configurarComboBoxTipo();
+        configurarTabelaProdutos();
         carregarTabelaProdutos();
         setLocationRelativeTo(null);
+
+        tblProdutos.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                tblProdutosMouseClicked(e);
+            }
+        });
+
+        btnEditar.setEnabled(false);
+        btnExcluir.setEnabled(false);
     }
 
     private void configurarComboBoxTipo() {
@@ -31,9 +41,16 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
         cmbTipo.setModel(new DefaultComboBoxModel<>(tipos));
     }
 
+    private void configurarTabelaProdutos() {
+        DefaultTableModel model = (DefaultTableModel) tblProdutos.getModel();
+        if (model.getColumnCount() == 0) {
+            model.setColumnIdentifiers(new Object[]{"#", "Nome", "Preco", "Tipo", "Estoque", "Custo em Pontos"});
+        }
+    }
+
     private void carregarTabelaProdutos() {
         DefaultTableModel model = (DefaultTableModel) tblProdutos.getModel();
-        model.setRowCount(0); // Limpa a tabela
+        model.setRowCount(0);
 
         try {
             List<Produto> produtos = produtoController.buscarTodos();
@@ -41,7 +58,7 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
                 model.addRow(new Object[]{
                     p.getId(),
                     p.getNome(),
-                    p.getPreco(),
+                    String.format("%.2f", p.getPreco()),
                     p.getTipo(),
                     p.getEstoque(),
                     p.getCustoEmPontos()
@@ -50,20 +67,55 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Erro ao carregar produtos: " + e.getMessage(), "Erro de Banco", JOptionPane.ERROR_MESSAGE);
         }
+        limparCamposESelecao();
     }
 
-    private void limparCampos() {
+    private void limparCamposESelecao() {
         txtNome.setText("");
         txtPreco.setText("");
         cmbTipo.setSelectedIndex(0);
         spnEstoque.setValue(0);
         spnPontos.setValue(0);
-        btnExcluir.setEnabled(false);
+
         produtoSelecionadoId = -1;
-        btnSalvar.setText("Salvar");
+        tblProdutos.clearSelection();
+
+        btnSalvar.setText("SALVAR");
+        btnEditar.setEnabled(false);
+        btnExcluir.setEnabled(false);
     }
 
-    // --- Lógica de CRUD ---
+    private void carregarProdutoParaEdicao() {
+        if (produtoSelecionadoId == -1) {
+            JOptionPane.showMessageDialog(this, "Selecione um produto na tabela primeiro.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            Produto produto = produtoController.findById(produtoSelecionadoId);
+            if (produto == null) {
+                JOptionPane.showMessageDialog(this, "Produto não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
+                limparCamposESelecao();
+                return;
+            }
+
+            txtNome.setText(produto.getNome());
+            // Usa String.valueOf para garantir que o double seja convertido para string
+            txtPreco.setText(String.valueOf(produto.getPreco()).replace(',', '.'));
+            cmbTipo.setSelectedItem(produto.getTipo());
+            spnEstoque.setValue(produto.getEstoque());
+            spnPontos.setValue(produto.getCustoEmPontos());
+
+            btnSalvar.setText("Atualizar");
+            // Botões Editar/Excluir já devem estar habilitados pelo clique
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Erro ao buscar dados do produto: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro inesperado ao carregar produto: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void salvarOuAtualizar() {
         String nome = txtNome.getText();
         String precoStr = txtPreco.getText().replace(",", ".");
@@ -75,21 +127,28 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
         try {
             preco = Double.parseDouble(precoStr);
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Preço inválido. Use apenas números.", "Erro de Entrada", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Preço inválido. Use apenas números (ex: 10.50).", "Erro de Entrada", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if (estoque < 0) {
+            JOptionPane.showMessageDialog(this, "Estoque não pode ser negativo.", "Erro de Entrada", JOptionPane.WARNING_MESSAGE);
+            spnEstoque.setValue(0);
+            return;
+        }
+        if (custoEmPontos < 0) {
+            JOptionPane.showMessageDialog(this, "Custo em pontos não pode ser negativo.", "Erro de Entrada", JOptionPane.WARNING_MESSAGE);
+            spnPontos.setValue(0);
             return;
         }
 
         try {
             if (produtoSelecionadoId == -1) {
-                // SALVAR NOVO PRODUTO
                 produtoController.salvarProduto(nome, preco, tipo, estoque, custoEmPontos);
                 JOptionPane.showMessageDialog(this, "Produto salvo com sucesso!");
             } else {
-                // ATUALIZAR PRODUTO EXISTENTE
                 produtoController.atualizarProduto(produtoSelecionadoId, nome, preco, tipo, estoque, custoEmPontos);
                 JOptionPane.showMessageDialog(this, "Produto atualizado com sucesso!");
             }
-            limparCampos();
             carregarTabelaProdutos();
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Validação", JOptionPane.WARNING_MESSAGE);
@@ -99,37 +158,45 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
     }
 
     private void excluirProduto() {
-        if (produtoSelecionadoId != -1) {
-            int confirm = JOptionPane.showConfirmDialog(this,
-                    "Tem certeza que deseja excluir o produto ID " + produtoSelecionadoId + "?",
-                    "Confirmação", JOptionPane.YES_NO_OPTION);
+        if (produtoSelecionadoId == -1) {
+            JOptionPane.showMessageDialog(this, "Selecione um produto na tabela para excluir.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-            if (confirm == JOptionPane.YES_OPTION) {
-                try {
-                    produtoController.deletarProduto(produtoSelecionadoId);
-                    JOptionPane.showMessageDialog(this, "Produto excluído com sucesso!");
-                    limparCampos();
-                    carregarTabelaProdutos();
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(this, "Erro ao excluir: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
-                }
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Tem certeza que deseja excluir o produto ID " + produtoSelecionadoId + "?",
+                "Confirmação de Exclusão", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                produtoController.deletarProduto(produtoSelecionadoId);
+                JOptionPane.showMessageDialog(this, "Produto excluído com sucesso!");
+                carregarTabelaProdutos(); // Recarrega e limpa
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Erro ao excluir: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+                limparCamposESelecao(); // Limpa mesmo com erro
             }
+        } else {
+            limparCamposESelecao(); // Limpa se clicar Não
         }
     }
 
     private void tblProdutosMouseClicked(java.awt.event.MouseEvent evt) {
-        int row = tblProdutos.getSelectedRow();
-        if (row >= 0) {
-            this.produtoSelecionadoId = (int) tblProdutos.getValueAt(row, 0);
+        int linhaSelecionada = tblProdutos.getSelectedRow();
 
-            txtNome.setText(tblProdutos.getValueAt(row, 1).toString());
-            txtPreco.setText(tblProdutos.getValueAt(row, 2).toString());
-            cmbTipo.setSelectedItem(tblProdutos.getValueAt(row, 3).toString());
-            spnEstoque.setValue((int) tblProdutos.getValueAt(row, 4));
-            spnPontos.setValue((int) tblProdutos.getValueAt(row, 5));
-
-            btnSalvar.setText("Atualizar");
-            btnExcluir.setEnabled(true);
+        if (linhaSelecionada >= 0) {
+            Object idObj = tblProdutos.getValueAt(linhaSelecionada, 0);
+            if (idObj instanceof Integer) {
+                this.produtoSelecionadoId = (Integer) idObj;
+                btnEditar.setEnabled(true);
+                btnExcluir.setEnabled(true);
+            } else {
+                System.err.println("Valor inesperado na coluna 0 da tabela: " + (idObj == null ? "null" : idObj.getClass().getName()));
+                JOptionPane.showMessageDialog(this, "Erro ao ler ID do produto na tabela.", "Erro Interno", JOptionPane.ERROR_MESSAGE);
+                limparCamposESelecao();
+            }
+        } else {
+            limparCamposESelecao();
         }
     }
 
@@ -161,6 +228,7 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblProdutos = new javax.swing.JTable();
         btnVoltar = new javax.swing.JButton();
+        btnEditar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Cadastro de Produto");
@@ -251,6 +319,16 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
             }
         });
 
+        btnEditar.setBackground(new java.awt.Color(255, 102, 0));
+        btnEditar.setFont(new java.awt.Font("Yu Gothic UI Semibold", 0, 16)); // NOI18N
+        btnEditar.setForeground(new java.awt.Color(255, 255, 255));
+        btnEditar.setText("EDITAR");
+        btnEditar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -274,9 +352,6 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
                                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addGroup(jPanel1Layout.createSequentialGroup()
-                                            .addComponent(btnLimpar)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                        .addGroup(jPanel1Layout.createSequentialGroup()
                                             .addComponent(cmbTipo, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
                                             .addGap(91, 91, 91)
                                             .addComponent(lblEstoque, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -284,7 +359,12 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
                                             .addComponent(spnEstoque, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
                                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                             .addComponent(lblPontos)
-                                            .addGap(26, 26, 26)))
+                                            .addGap(26, 26, 26))
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                            .addComponent(btnLimpar)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(btnEditar)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                         .addComponent(spnPontos)
                                         .addGroup(jPanel1Layout.createSequentialGroup()
@@ -317,10 +397,12 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
                     .addComponent(spnEstoque, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(spnPontos, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnLimpar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnSalvar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnExcluir, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnSalvar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnLimpar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnExcluir, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(37, 37, 37)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 279, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -355,16 +437,17 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
     }//GEN-LAST:event_btnExcluirActionPerformed
 
     private void btnLimparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimparActionPerformed
-        limparCampos();
+        limparCamposESelecao();
     }//GEN-LAST:event_btnLimparActionPerformed
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         this.dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
+        carregarProdutoParaEdicao();
+    }//GEN-LAST:event_btnEditarActionPerformed
+
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -374,6 +457,7 @@ public class TelaCadastroProduto extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnEditar;
     private javax.swing.JButton btnExcluir;
     private javax.swing.JButton btnLimpar;
     private javax.swing.JButton btnSalvar;
